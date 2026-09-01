@@ -1,24 +1,31 @@
 # UniWare
 
-UniWare is a university equipment sharing and management system.
+UniWare คือระบบสำหรับจัดการการค้นหาและยืมอุปกรณ์ภายในมหาวิทยาลัย
 
-The system connects two main types of users:
+แนวคิดหลักคือ ภายในมหาวิทยาลัยมีอุปกรณ์อยู่ตามภาควิชา ห้อง Lab หรือหน่วยงานต่าง ๆ แต่ผู้ที่ต้องการใช้อุปกรณ์อาจไม่รู้ว่า:
 
-- **Provider** — manages and provides university equipment
-- **Borrower** — discovers equipment and requests to borrow it
+- มีอุปกรณ์อะไรบ้าง
+- อุปกรณ์อยู่ที่ไหน
+- ใครเป็นผู้ดูแล
+- สามารถยืมได้หรือไม่
 
-The main system flow is:
+UniWare จึงทำหน้าที่เป็นตัวกลางระหว่างผู้ใช้หลัก 2 ฝั่ง:
+
+- **Provider** — ผู้ที่ดูแลหรือเป็นเจ้าของอุปกรณ์
+- **Borrower** — ผู้ที่ต้องการค้นหาและยืมอุปกรณ์
+
+Flow หลักของระบบ:
 
 ```text
-Register / Login
+สมัคร / Login
       ↓
-Provider adds equipment
+Provider เพิ่ม Equipment
       ↓
-Borrower discovers equipment
+Borrower ค้นหา Equipment
       ↓
-Borrow request
+ส่ง Borrow Request
       ↓
-Provider approval
+Provider Approve / Reject
       ↓
 Checkout
       ↓
@@ -31,52 +38,102 @@ Return
 
 ## Sprint Goal
 
-Users can access the system, and Providers can add equipment that Borrowers can discover.
+> ผู้ใช้สามารถเข้าสู่ระบบ และ Provider สามารถเพิ่มอุปกรณ์ให้ Borrower มองเห็นได้
 
-Sprint 1 focuses on the foundation of:
+Sprint 1 เน้นสร้าง Foundation ของระบบ:
 
 ```text
-Authentication
 User
+Authentication
 Equipment
 Catalog
 ```
 
-Current Sprint 1 stories include:
+User Stories ที่เลือกใน Sprint 1:
+
+| Story | รายละเอียด |
+|---|---|
+| US1-1 | Register |
+| US1-2 | Login |
+| US1-3 | Logout |
+| US2-1 | Provider adds Equipment |
+| US2-2 | Provider views own Equipment |
+| US2-3 | Provider edits Equipment |
+| US2-5 | Category / Location / Status |
+| US3-1 | Borrower views Equipment list |
+| US3-4 | Equipment detail |
+
+---
+
+# Architecture
+
+โครงสร้างระบบหลัก:
 
 ```text
-US1-1 Register
-US1-2 Login
-US1-3 Logout
+Frontend
+   │
+   │ HTTP
+   ▼
+Backend API
+   │
+   ▼
+Database
+```
 
-US2-1 Add Equipment
-US2-2 View Own Equipment
-US2-3 Edit Equipment
-US2-5 Category / Location / Status
+ตัวอย่าง Register:
 
-US3-1 Browse Equipment
-US3-4 Equipment Detail
+```text
+Register UI
+   ↓
+POST /api/auth/register
+   ↓
+Backend Validation
+   ↓
+Hash Password
+   ↓
+User Database
+```
+
+ตัวอย่าง Equipment:
+
+```text
+Add Equipment UI
+   ↓
+POST /api/equipment
+   ↓
+Authentication / Authorization
+   ↓
+Validation
+   ↓
+Equipment Database
 ```
 
 ---
 
 # Tech Stack
 
-| Part | Technology | Purpose |
-|---|---|---|
-| Frontend | React | Build UI using reusable components |
-| Language | TypeScript | Adds type checking to JavaScript |
-| Frontend Tooling | Vite | Development server and production build tool |
-| Styling | CSS | Prototype UI styling |
-| Testing | Vitest | Test runner |
-| React Testing | Testing Library | Test components from the user's perspective |
-| Version Control | Git + GitHub | Branching, collaboration, Pull Requests |
+## Frontend
 
-## React
+| Technology | ใช้ทำอะไร |
+|---|---|
+| React | สร้าง UI แบบ Component |
+| TypeScript | เพิ่ม Type Checking ให้ JavaScript |
+| Vite | Development Server และ Build Tool |
+| CSS | Styling สำหรับ Prototype |
+| Vitest | Automated Testing |
+| React Testing Library | ทดสอบ React Component จากมุมมองของ User |
 
-React is used to build the frontend as reusable components.
+Frontend ใช้:
 
-Example:
+```text
+React + Vite + TypeScript
+```
+
+### React
+
+React ใช้สร้าง UI จาก Component
+
+ตัวอย่าง:
 
 ```tsx
 function RegisterPage() {
@@ -84,118 +141,114 @@ function RegisterPage() {
 }
 ```
 
-Pages can be composed from smaller components:
+แนวคิดคือ:
+
+```text
+Page
+ ↓
+Components
+ ↓
+UI Elements
+```
+
+เช่น:
 
 ```text
 RegisterPage
     ↓
 RegisterForm
-    ├── Name input
-    ├── Email input
-    ├── Password input
-    └── Submit button
+    ├── Name
+    ├── Email
+    ├── Password
+    └── Submit Button
 ```
 
-## TypeScript
+### TypeScript
 
-TypeScript is JavaScript with static type checking.
-
-Files containing normal TypeScript use:
+ไฟล์ TypeScript ปกติ:
 
 ```text
 .ts
 ```
 
-React components containing JSX use:
+ตัวอย่าง:
+
+```text
+authApi.ts
+validation.ts
+```
+
+ไฟล์ React ที่มี JSX:
 
 ```text
 .tsx
 ```
 
-Example:
+ตัวอย่าง:
 
 ```text
-validation.ts
-authApi.ts
-
 RegisterPage.tsx
 RegisterForm.tsx
 ```
 
-## Vite
+### Vite
 
-Vite provides the development environment and build system for the React application.
+ใช้สำหรับ:
 
-Run development server:
+```text
+Development Server
+Hot Reload
+Build Production
+```
+
+รัน Frontend:
 
 ```bash
 npm run dev
 ```
 
-Production build:
-
-```bash
-npm run build
-```
-
 ---
 
-# Repository Structure
+# Project Structure
+
+โครงสร้าง Frontend ที่ทีมควรใช้:
 
 ```text
-UniWare/
+frontend/
 │
-├── frontend/
+├── src/
 │   │
-│   ├── src/
-│   │   ├── components/
-│   │   │   └── auth/
-│   │   │       ├── RegisterForm.tsx
-│   │   │       └── RegisterForm.test.tsx
-│   │   │
-│   │   ├── pages/
-│   │   │   ├── RegisterPage.tsx
-│   │   │   └── RegisterPage.css
-│   │   │
-│   │   ├── services/
-│   │   │   └── authApi.ts
-│   │   │
-│   │   ├── types/
-│   │   │   └── auth.ts
-│   │   │
-│   │   ├── utils/
-│   │   │   ├── validation.ts
-│   │   │   └── validation.test.ts
-│   │   │
-│   │   ├── test/
-│   │   │   └── setup.ts
-│   │   │
-│   │   ├── App.tsx
-│   │   ├── index.css
-│   │   └── main.tsx
+│   ├── pages/
 │   │
-│   ├── .env.example
-│   ├── package.json
-│   ├── package-lock.json
-│   └── vitest.config.ts
+│   ├── components/
+│   │
+│   ├── services/
+│   │
+│   ├── types/
+│   │
+│   ├── utils/
+│   │
+│   ├── test/
+│   │
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── index.css
 │
-├── docs/
-│   └── api-contract.md
-│
-└── README.md
+├── .env.example
+├── package.json
+├── package-lock.json
+└── vitest.config.ts
 ```
 
 ---
 
-# Frontend Project Structure
-
-The frontend follows a simple separation of responsibilities.
+# แต่ละ Folder ใช้ทำอะไร
 
 ## `pages/`
 
-Contains complete application screens.
+เก็บหน้าหลักของระบบ
 
-Examples:
+ตัวอย่าง:
 
 ```text
 RegisterPage.tsx
@@ -204,49 +257,53 @@ EquipmentCatalogPage.tsx
 EquipmentDetailPage.tsx
 ```
 
-A page normally represents a screen or route in the application.
+โดยทั่วไป 1 Page จะสอดคล้องกับ Screen หรือ Route หนึ่งของระบบ
 
 ---
 
 ## `components/`
 
-Contains reusable UI pieces.
+เก็บ UI Component ที่ใช้ประกอบ Page
 
-Example:
+ตัวอย่าง:
 
 ```text
 components/
-└── auth/
-    └── RegisterForm.tsx
+├── auth/
+│   ├── RegisterForm.tsx
+│   └── LoginForm.tsx
+│
+└── equipment/
+    └── EquipmentForm.tsx
 ```
 
-Do not put the entire application inside `App.tsx`.
+ไม่ควรเขียน Feature ทั้งหมดรวมไว้ใน `App.tsx`
 
-Prefer:
+ควรเป็น:
 
 ```text
 App
  ↓
 Page
  ↓
-Components
+Component
 ```
 
 ---
 
 ## `services/`
 
-Contains code that communicates with backend APIs.
+เก็บ Function สำหรับติดต่อ Backend API
 
-Example:
+ตัวอย่าง:
 
 ```text
-services/authApi.ts
+services/
+├── authApi.ts
+└── equipmentApi.ts
 ```
 
-React components should not contain API implementation everywhere.
-
-Prefer:
+ตัวอย่าง Flow:
 
 ```text
 RegisterForm
@@ -255,18 +312,18 @@ registerUser()
      ↓
 authApi.ts
      ↓
-Backend API
+Backend
 ```
 
-This allows the backend implementation or URL to change without rewriting the UI.
+ไม่ควรเขียน `fetch()` กระจายอยู่ใน Component หลายไฟล์
 
 ---
 
 ## `types/`
 
-Contains shared TypeScript interfaces and types.
+เก็บ Type / Interface ของ TypeScript
 
-Example:
+ตัวอย่าง:
 
 ```ts
 interface RegisterRequest {
@@ -276,53 +333,72 @@ interface RegisterRequest {
 }
 ```
 
-This helps ensure different parts of the frontend use the same data structure.
+ช่วยให้ Frontend ใช้รูปแบบข้อมูลเดียวกัน
 
 ---
 
 ## `utils/`
 
-Contains reusable logic that is not UI-specific.
+เก็บ Logic ที่ไม่ใช่ UI
 
-Example:
+ตัวอย่าง:
 
 ```text
 validation.ts
 ```
 
-Registration validation is separated from `RegisterForm.tsx` so that UI code and validation logic are not mixed together.
+เช่น:
+
+```text
+validateRegistration()
+validateEquipment()
+```
 
 ---
 
 ## CSS
 
-`index.css` contains global/base styles shared by the application.
+`index.css`
 
-Page-specific styles should stay close to their page.
+ใช้สำหรับ Global Style เช่น:
 
-Example:
+```text
+font
+box-sizing
+body
+default element style
+```
+
+Style เฉพาะ Page ควรแยกไฟล์
+
+ตัวอย่าง:
 
 ```text
 RegisterPage.tsx
 RegisterPage.css
 ```
 
-Do not use `App.css` as a shared place for all feature styles.
+ไม่ควรนำ CSS ของทุก Feature ไปกองรวมกันในไฟล์เดียว
 
 ---
 
-# Getting Started
+# วิธีเริ่มใช้งาน Project
 
-## 1. Clone the repository
+## 1. Clone Repository
 
 ```bash
 git clone <repository-url>
+```
+
+เข้า Folder:
+
+```bash
 cd <repository-folder>
 ```
 
 ---
 
-## 2. Enter the frontend directory
+## 2. เข้า Frontend
 
 ```bash
 cd frontend
@@ -330,140 +406,114 @@ cd frontend
 
 ---
 
-## 3. Install dependencies
+## 3. Install Dependencies
 
 ```bash
 npm install
 ```
 
-Do **not** copy `node_modules` from another team member.
+ไม่ต้องส่ง `node_modules` ให้กัน
 
-`npm install` reads:
+`npm install` จะอ่าน:
 
 ```text
 package.json
 package-lock.json
 ```
 
-and installs the correct dependencies locally.
+แล้วติดตั้ง Dependency ที่ Project ต้องการให้เอง
 
-`node_modules/` must not be committed to Git.
+ดังนั้น:
+
+```text
+package.json       ✅ commit
+package-lock.json  ✅ commit
+node_modules       ❌ ห้าม commit
+```
 
 ---
 
-# Environment Configuration
+# Environment Variables
 
-Create:
+หลัง Clone Project ให้สร้าง:
 
 ```text
 frontend/.env
 ```
 
-using:
+โดยดูตัวอย่างจาก:
 
 ```text
 frontend/.env.example
 ```
 
-Current configuration:
+ตัวอย่าง:
 
 ```env
 VITE_API_BASE_URL=http://localhost:3000/api
 VITE_USE_MOCK_API=true
 ```
 
-## Mock API Mode
-
-While the backend is not available:
+ระหว่างที่ Backend ยังไม่พร้อม:
 
 ```env
 VITE_USE_MOCK_API=true
 ```
 
-The frontend will use a mock registration response.
-
-## Real Backend Mode
-
-When the backend Register API is ready:
+เมื่อ Backend พร้อม:
 
 ```env
 VITE_USE_MOCK_API=false
 ```
 
-The frontend will call:
-
-```text
-POST http://localhost:3000/api/auth/register
-```
-
-Restart Vite after changing `.env`:
+หลังแก้ `.env` ควร Restart Vite:
 
 ```bash
 Ctrl + C
 npm run dev
 ```
 
-> Never put passwords, database credentials, API secrets, or other secrets in variables beginning with `VITE_`.
+> ห้ามเก็บ Password, Database Password, Secret Key หรือข้อมูลลับในตัวแปร `VITE_`
 >
-> Vite frontend environment variables can be exposed to the browser.
+> เพราะ Environment Variable ฝั่ง Frontend สามารถถูกเปิดเผยใน Browser ได้
 
 ---
 
-# Running the Frontend
+# การรัน Frontend
 
-Start development server:
+Development:
 
 ```bash
 npm run dev
 ```
 
-Vite normally starts at:
+โดยปกติ Vite จะเปิดที่:
 
 ```text
 http://localhost:5173
 ```
 
-Stop the development server using:
-
-```text
-Ctrl + C
-```
-
 ---
 
-# Testing
+# การ Test
 
-Run tests in watch mode:
+รัน Test แบบ Watch Mode:
 
 ```bash
 npm test
 ```
 
-Run all tests once:
+รัน Test ครั้งเดียว:
 
 ```bash
 npm run test:run
-```
-
-Current registration tests cover:
-
-```text
-Valid registration data
-Missing name
-Invalid university email
-Incorrect student ID length
-Weak password
-Missing password
-Successful form submission
-Duplicate email API error
-Invalid form does not call API
 ```
 
 ---
 
 # Lint
 
-Check code quality and common coding issues:
+ตรวจ Code Quality:
 
 ```bash
 npm run lint
@@ -471,15 +521,19 @@ npm run lint
 
 ---
 
-# Production Build
+# Build
 
-Verify that the frontend can compile successfully:
+ตรวจว่า Project สามารถ Build เป็น Production ได้หรือไม่:
 
 ```bash
 npm run build
 ```
 
-Before a Pull Request is considered ready, run:
+---
+
+# ก่อนส่ง Pull Request
+
+Frontend ทุกคนควรรัน:
 
 ```bash
 npm run test:run
@@ -487,28 +541,28 @@ npm run lint
 npm run build
 ```
 
-All three should pass.
+ทั้ง 3 คำสั่งควรผ่านก่อนขอ Merge
 
 ---
 
 # Git Workflow
 
-Do not develop directly on `main`.
+## ห้ามทำงานตรง `main`
 
-Before starting a new User Story:
+ก่อนเริ่ม User Story ใหม่:
 
 ```bash
 git switch main
 git pull
 ```
 
-Then create a new branch:
+จากนั้นสร้าง Branch:
 
 ```bash
 git switch -c feature/usX-X-name
 ```
 
-Examples:
+ตัวอย่าง:
 
 ```text
 feature/us1-1-register
@@ -517,58 +571,58 @@ feature/us1-3-logout
 
 feature/us2-1-add-equipment
 feature/us2-2-my-equipment
+feature/us2-3-edit-equipment
 
 feature/us3-1-catalog
 feature/us3-4-equipment-detail
 ```
 
-Project/setup work that is not a User Story can use:
-
-```text
-chore/frontend-setup
-```
-
 ---
 
-# Typical Git Workflow
+# ขั้นตอนการทำงานด้วย Git
 
 ```text
-main
- ↓
-git pull
- ↓
-create feature branch
- ↓
-develop
- ↓
-commit
- ↓
-push
- ↓
+main ล่าสุด
+    ↓
+สร้าง Feature Branch
+    ↓
+เขียน Code
+    ↓
+Commit
+    ↓
+Push
+    ↓
 Pull Request
- ↓
-review
- ↓
-merge into main
+    ↓
+Code Review
+    ↓
+Merge เข้า main
 ```
 
-Example:
+ตัวอย่าง:
 
 ```bash
 git switch main
+
 git pull
 
 git switch -c feature/us2-1-add-equipment
+```
 
-# work...
+ทำงานเสร็จบางส่วน:
 
+```bash
 git add .
 git commit -m "feat(us2-1): add equipment form"
+```
 
+Push:
+
+```bash
 git push -u origin feature/us2-1-add-equipment
 ```
 
-Then open a Pull Request to:
+จากนั้นเปิด Pull Request:
 
 ```text
 feature/us2-1-add-equipment
@@ -576,13 +630,40 @@ feature/us2-1-add-equipment
              main
 ```
 
-Do not push directly into `main`.
+---
+
+# Push ไม่เท่ากับ Merge
+
+สามารถ Push งานที่ยังไม่เสร็จขึ้น GitHub ได้
+
+```text
+Commit
+ ↓
+Push
+```
+
+ไม่ได้ทำให้ `main` เปลี่ยน
+
+`main` จะเปลี่ยนก็ต่อเมื่อ:
+
+```text
+Pull Request
+ ↓
+Review
+ ↓
+Merge
+```
+
+ดังนั้นควร Push งานเป็นระยะเพื่อ:
+
+- Backup งาน
+- ให้เพื่อนดู Progress
+- ให้เพื่อน Review ได้
+- ลดความเสี่ยงงานหาย
 
 ---
 
-# Commit Convention
-
-Use descriptive commit messages.
+# Commit Message Convention
 
 Feature:
 
@@ -590,13 +671,13 @@ Feature:
 feat(us1-1): add registration form
 ```
 
-Tests:
+Test:
 
 ```text
-test(us1-1): add registration form tests
+test(us1-1): add registration tests
 ```
 
-Styling:
+Style:
 
 ```text
 style(us1-1): add registration prototype styling
@@ -605,118 +686,34 @@ style(us1-1): add registration prototype styling
 Documentation:
 
 ```text
-docs: add registration API contract
+docs: add API contract
 ```
 
-Project/configuration:
+Setup / Configuration:
 
 ```text
-chore: initialize React Vite TypeScript frontend
+chore: initialize frontend
 ```
 
 ---
 
-# US1-1 — Register Account
+# API Convention
 
-## User Story
-
-A new user can create a UniWare account using an approved university email.
-
-## Registration Fields
-
-```text
-Name
-University Email
-Password
-```
-
----
-
-# Registration Rules
-
-## Name
-
-Name must not be empty.
-
----
-
-## Chulalongkorn Student Email
-
-Required format:
-
-```text
-XXXXXXXXXX@student.chula.ac.th
-```
-
-where:
-
-```text
-XXXXXXXXXX = exactly 10 numeric digits
-```
-
-Valid example:
-
-```text
-6731234521@student.chula.ac.th
-```
-
-Invalid examples:
-
-```text
-putter@student.chula.ac.th
-123456789@student.chula.ac.th
-12345678901@student.chula.ac.th
-1234567890@gmail.com
-```
-
-Validation pattern:
-
-```text
-^\d{10}@student\.chula\.ac\.th$
-```
-
----
-
-## Password
-
-Password must:
-
-```text
-Have at least 8 characters
-Contain at least 1 lowercase letter
-Contain at least 1 uppercase letter
-Contain at least 1 number
-```
-
-Example valid password:
-
-```text
-Uniware123
-```
-
-Important:
-
-Frontend validation exists for user experience.
-
-The backend must independently perform the same validation because frontend validation can be bypassed.
-
----
-
-# Register API Contract
-
-Full API documentation:
+รายละเอียด API กลางอยู่ที่:
 
 ```text
 docs/api-contract.md
 ```
 
-## Endpoint
+Frontend และ Backend ต้องตกลง Request / Response Format ให้ตรงกันก่อนทำ Integration
+
+ตัวอย่าง Register:
 
 ```http
 POST /api/auth/register
 ```
 
-## Request
+Request:
 
 ```json
 {
@@ -726,21 +723,7 @@ POST /api/auth/register
 }
 ```
 
-The frontend must **not** send a role during self-registration.
-
-Self-registration currently creates:
-
-```text
-BORROWER
-```
-
-Provider accounts for Sprint 1 can be created using seeded/test accounts.
-
----
-
-# Successful Registration
-
-Response:
+ตัวอย่าง Success:
 
 ```http
 201 Created
@@ -758,11 +741,7 @@ Response:
 }
 ```
 
----
-
-# API Error Format
-
-All UniWare APIs should use the same basic error format:
+Error Format กลาง:
 
 ```json
 {
@@ -771,11 +750,7 @@ All UniWare APIs should use the same basic error format:
 }
 ```
 
-Example duplicate email:
-
-```http
-409 Conflict
-```
+ตัวอย่าง:
 
 ```json
 {
@@ -784,171 +759,119 @@ Example duplicate email:
 }
 ```
 
-Example validation error:
-
-```http
-400 Bad Request
-```
-
-```json
-{
-  "code": "VALIDATION_ERROR",
-  "message": "Invalid registration data."
-}
-```
-
-Using one error format prevents different frontend features from handling backend errors differently.
-
 ---
 
-# Current US1-1 Architecture
+# Frontend / Backend Responsibility
+
+Frontend รับผิดชอบ:
 
 ```text
-RegisterPage
-     ↓
-RegisterForm
-     │
-     ├────────→ validation.ts
-     │              ↓
-     │        Client Validation
-     │
-     └────────→ authApi.ts
-                    ↓
-             Mock / Real API
-                    ↓
-            POST /auth/register
+UI
+Form State
+Client-side Validation
+Loading State
+Error / Success Display
+API Request
 ```
 
----
-
-# US1-1 Frontend Completed
-
-The current `feature/us1-1-register` branch includes:
+Backend รับผิดชอบ:
 
 ```text
-Registration page
-Registration form
-
-React form state
-
-Required-field validation
-Chula student email validation
-Password validation
-
-Loading state
-Success state
-API error state
-
-TypeScript API types
-Register API contract
-
-Mock registration API
-Real backend-ready fetch implementation
-
-Environment configuration
-
-Prototype styling
-
-Validation unit tests
-Registration form component tests
-
-Lint check
-Production build check
-```
-
----
-
-# US1-1 Backend Still Required
-
-The complete User Story is **not finished yet**.
-
-Backend work still includes:
-
-```text
-User data model
-Database migration
-
-POST /api/auth/register
-
-Server-side:
-- name validation
-- Chula student email validation
-- password validation
-- duplicate email validation
-
-Password hashing
-
-Create User in database
-
-Return API response according to:
-docs/api-contract.md
-```
-
-After the backend is ready:
-
-```text
-VITE_USE_MOCK_API=false
-        ↓
-Frontend
-        ↓
-Real Register API
-        ↓
+Server-side Validation
+Authentication
+Authorization
 Database
+Password Hashing
+Business Rules
 ```
 
-Then the team must perform integration/end-to-end registration tests.
+สำคัญ:
+
+```text
+Frontend Validation
+≠
+Security
+```
+
+Frontend Validation ช่วย User Experience
+
+แต่ Backend ต้อง Validate ซ้ำเสมอ เพราะ Frontend สามารถถูก Bypass ได้
 
 ---
 
-# Creating a New Frontend Feature
+# Definition of Done
 
-For example, if working on US1-2 Login:
+User Story จะถือว่า Done เมื่อ:
 
-Start from the latest `main`:
+- UI ที่เกี่ยวข้องทำงาน
+- API ที่เกี่ยวข้องทำงาน
+- Data Model ที่เกี่ยวข้องพร้อม
+- Valid Acceptance Criteria ผ่าน
+- Invalid Acceptance Criteria ผ่าน
+- Validation ทำงาน
+- Permission / Authorization ทำงานถ้ามี
+- Test ผ่าน
+- Code ถูก Review
+- Merge เข้า `main`
+- ไม่มี Critical Defect ที่ทำให้ Flow หลักใช้ไม่ได้
+
+---
+
+# ถ้าจะเริ่มทำ Frontend Story ใหม่
+
+ตัวอย่าง US1-2 Login
+
+## 1. Update main
 
 ```bash
 git switch main
 git pull
+```
+
+## 2. สร้าง Branch
+
+```bash
 git switch -c feature/us1-2-login
 ```
 
-Recommended files:
+## 3. ดู Structure เดิมก่อนสร้างไฟล์ใหม่
 
-```text
-src/
-├── pages/
-│   └── LoginPage.tsx
-│
-├── components/
-│   └── auth/
-│       └── LoginForm.tsx
-│
-├── services/
-│   └── authApi.ts
-│
-└── types/
-    └── auth.ts
-```
-
-Notice that `authApi.ts` and `auth.ts` already exist.
-
-Do not create duplicate files such as:
-
-```text
-loginApi.ts
-authenticationApi.ts
-userAuthApi.ts
-```
-
-without discussing it with the team first.
-
-Authentication-related API functions should normally stay together in:
+Authentication มี:
 
 ```text
 services/authApi.ts
+types/auth.ts
+components/auth/
 ```
 
-For example:
+ดังนั้น Login ควรต่อยอดของเดิม
+
+ตัวอย่าง:
+
+```text
+pages/
+└── LoginPage.tsx
+
+components/
+└── auth/
+    └── LoginForm.tsx
+
+services/
+└── authApi.ts
+
+types/
+└── auth.ts
+```
+
+อย่าสร้าง Service ซ้ำโดยไม่จำเป็น เช่น:
+
+```text
+loginApi.ts
+userAuthApi.ts
+authenticationApi.ts
+```
+
+ถ้ามี `authApi.ts` อยู่แล้ว ให้เพิ่ม:
 
 ```text
 registerUser()
@@ -956,13 +879,13 @@ loginUser()
 logoutUser()
 ```
 
+ไว้ด้วยกัน
+
 ---
 
-# Creating an Equipment Feature
+# ถ้าจะทำ Equipment
 
-Equipment features should follow the same pattern.
-
-Example:
+ใช้ Pattern เดียวกัน:
 
 ```text
 pages/
@@ -982,7 +905,7 @@ utils/
 └── equipmentValidation.ts
 ```
 
-The pattern is:
+Flow:
 
 ```text
 Page
@@ -998,20 +921,21 @@ Backend API
 
 ---
 
-# Team Rules
+# กติกากลางของทีม
 
-1. Start new work from the latest `main`.
-2. Do not develop directly on `main`.
-3. Use one branch per User Story/feature.
-4. Push work regularly; pushing does not merge it into `main`.
-5. Use Pull Requests before merging.
-6. Keep page-specific CSS outside global `index.css`.
-7. Keep API calls in `services/`, not scattered throughout components.
-8. Keep shared TypeScript structures in `types/`.
-9. Keep reusable validation logic outside React components.
-10. Follow `docs/api-contract.md` when implementing backend APIs.
-11. Never commit `.env` or `node_modules`.
-12. Before requesting merge, run:
+1. ไม่เขียนงานตรง `main`
+2. ก่อนสร้าง Branch ใหม่ต้อง `git pull` main ล่าสุด
+3. 1 User Story / Feature ต่อ 1 Branch เป็นหลัก
+4. Push งานขึ้น GitHub เป็นระยะ
+5. Merge ผ่าน Pull Request
+6. ให้เพื่อน Review ก่อน Merge
+7. ไม่ Commit `node_modules`
+8. ไม่ Commit `.env`
+9. API Call ให้อยู่ใน `services/`
+10. TypeScript Type กลางให้อยู่ใน `types/`
+11. Validation ที่นำกลับมาใช้ได้ให้อยู่ใน `utils/`
+12. CSS เฉพาะ Page ไม่ควรใส่ใน `index.css`
+13. ก่อน Merge Frontend ต้องผ่าน:
 
 ```bash
 npm run test:run
@@ -1019,14 +943,21 @@ npm run lint
 npm run build
 ```
 
+14. หากจะเปลี่ยน API Contract หรือ Project Structure ที่คนอื่นใช้ร่วมกัน ให้คุยกับทีมก่อน
+
 ---
 
-# Current Development Branch
+# สิ่งที่ควรอ่านก่อนเริ่มทำงาน
 
-```text
-feature/us1-1-register
-```
+สำหรับสมาชิกทีมใหม่หรือคนที่กำลังเริ่ม User Story:
 
-This branch currently contains the frontend implementation and development foundation for US1-1 Register Account.
-
-The registration frontend currently operates using the Mock API while waiting for the real backend implementation.
+1. อ่าน README นี้
+2. Pull `main` ล่าสุด
+3. ดู Sprint Backlog / User Story ของตัวเอง
+4. ดู Acceptance Criteria
+5. ดู Folder Structure ที่มีอยู่แล้ว
+6. ดู `docs/api-contract.md`
+7. สร้าง Feature Branch
+8. เริ่ม Implementation
+9. Test
+10. เปิด Pull Request
