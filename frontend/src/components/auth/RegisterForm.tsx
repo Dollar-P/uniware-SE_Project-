@@ -72,8 +72,11 @@ function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
+    <form
+      className="register-form"
+      onSubmit={handleSubmit}
+    >
+      <div className="form-field">
         <label htmlFor="name">
           Name
         </label>
@@ -82,6 +85,7 @@ function RegisterForm() {
           id="name"
           name="name"
           type="text"
+          placeholder="Your name"
           value={name}
           onChange={(event) =>
             setName(event.target.value)
@@ -89,11 +93,13 @@ function RegisterForm() {
         />
 
         {errors.name && (
-          <p>{errors.name}</p>
+          <p className="form-error">
+            {errors.name}
+          </p>
         )}
       </div>
 
-      <div>
+      <div className="form-field">
         <label htmlFor="email">
           University Email
         </label>
@@ -102,7 +108,7 @@ function RegisterForm() {
           id="email"
           name="email"
           type="email"
-          placeholder="XXX@student.chula.ac.th"
+          placeholder="XXXXXXXXXX@student.chula.ac.th"
           value={email}
           onChange={(event) =>
             setEmail(event.target.value)
@@ -110,11 +116,13 @@ function RegisterForm() {
         />
 
         {errors.email && (
-          <p>{errors.email}</p>
+          <p className="form-error">
+            {errors.email}
+          </p>
         )}
       </div>
 
-      <div>
+      <div className="form-field">
         <label htmlFor="password">
           Password
         </label>
@@ -123,31 +131,39 @@ function RegisterForm() {
           id="password"
           name="password"
           type="password"
+          placeholder="Create a password"
           value={password}
           onChange={(event) =>
             setPassword(event.target.value)
           }
         />
 
-        <p>
-          Minimum 8 characters with uppercase,
+        <p className="form-help">
+          At least 8 characters with uppercase,
           lowercase, and a number.
         </p>
 
         {errors.password && (
-          <p>{errors.password}</p>
+          <p className="form-error">
+            {errors.password}
+          </p>
         )}
       </div>
 
       {apiError && (
-        <p>{apiError}</p>
+        <div className="form-message form-message-error">
+          {apiError}
+        </div>
       )}
 
       {successMessage && (
-        <p>{successMessage}</p>
+        <div className="form-message form-message-success">
+          {successMessage}
+        </div>
       )}
 
       <button
+        className="register-button"
         type="submit"
         disabled={isLoading}
       >
