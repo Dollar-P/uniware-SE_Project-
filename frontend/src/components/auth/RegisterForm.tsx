@@ -4,6 +4,8 @@ import type { FormEvent } from 'react';
 import { validateRegistration } from '../../utils/validation';
 import type { RegisterFormErrors } from '../../types/auth';
 
+import { registerUser } from '../../services/authApi';
+
 function RegisterForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -11,25 +13,30 @@ function RegisterForm() {
 
   const [errors, setErrors] = useState<RegisterFormErrors>({});
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    async function handleSubmit(
+    event: FormEvent<HTMLFormElement>
+    ) {
     event.preventDefault();
 
     const formData = {
-      name,
-      email,
-      password,
+        name,
+        email,
+        password,
     };
 
-    const validationErrors = validateRegistration(formData);
+    const validationErrors =
+        validateRegistration(formData);
 
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
-      return;
+        return;
     }
 
-    console.log('Valid registration data:', formData);
-  }
+    const response = await registerUser(formData);
+
+    console.log(response);
+    }
 
   return (
     <form onSubmit={handleSubmit}>
