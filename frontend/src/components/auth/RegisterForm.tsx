@@ -54,7 +54,7 @@ function RegisterForm() {
           id="email"
           name="email"
           type="email"
-          placeholder="XXXXXXXXXX@student.chula.ac.th"
+          placeholder="XXX@student.chula.ac.th"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
